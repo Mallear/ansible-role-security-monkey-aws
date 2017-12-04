@@ -69,13 +69,13 @@
       group: nginx
       recurse: yes
 
-  # - name: Populate DB
-  #   shell: "cd {{ security_monkey_path }} && {{ executable_path_virtualenv }}/monkey db upgrade"
-  #   become: no
+  - name: Populate DB
+    shell: "cd {{ security_monkey_path }} && {{ executable_path_virtualenv }}/monkey db upgrade"
+    become: no
 
-  # - name: Add friendly Amazon service accounts
-  #   shell: "cd {{ security_monkey_path }} && {{ executable_path_virtualenv }}/monkey amazon_accounts"
-  #   become: no
+  - name: Add friendly Amazon service accounts
+    shell: "cd {{ security_monkey_path }} && {{ executable_path_virtualenv }}/monkey amazon_accounts"
+    become: no
 
   - name: Set group permissions to log file
     file:
