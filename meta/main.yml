@@ -2,10 +2,12 @@
 
 galaxy_info:
   author: Maxime Sibellas
-  description: Install minimal Nginx on Amazon Linux
+  description: Install Security Monkey on Amazon Linux
   company: Ekino
   license: license (GPLv2, CC-BY, etc)
   min_ansible_version: 1.7
+  cloud_platform:
+  - aws
   platforms:
   - name: AmazonLinux
   galaxy_tags:
