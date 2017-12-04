@@ -13,11 +13,11 @@ galaxy_info:
   - web
 
 dependencies:
-  - role: ansible-role-nginx
+  - role: Mallear.nginx-el
     become: yes
-  - role: ansible-role-supervisord-aws-linux
+  - role: Mallear.supervisord-aws-linux
     become: yes
-  - role: ansible-role-yum
+  - role: Mallear.yum
     yum_install_packages: [
         python-pip,
         python-devel,
