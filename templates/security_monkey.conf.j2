@@ -1,0 +1,15 @@
+
+[program:securitymonkey]
+user=nginx
+autostart=true
+autorestart=true
+environment=PYTHONPATH='/usr/local/src/security_monkey/',PATH="/usr/local/src/security_monkey/venv/bin:%(ENV_PATH)s",SECURITY_MONKEY_SETTINGS='/usr/local/src/security_monkey/env-config/config.py'
+command=/usr/local/src/security_monkey/venv/bin/monkey run_api_server
+
+[program:securitymonkeyscheduler]
+user=nginx
+autostart=true
+autorestart=true
+directory=/usr/local/src/security_monkey/
+environment=PYTHONPATH='/usr/local/src/security_monkey/',PATH="/usr/local/src/security_monkey/venv/bin:%(ENV_PATH)s",SECURITY_MONKEY_SETTINGS="/usr/local/src/security_monkey/env-config/config.py"
+command=/usr/local/src/security_monkey/venv/bin/monkey start_scheduler

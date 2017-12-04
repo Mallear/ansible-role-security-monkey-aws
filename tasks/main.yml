@@ -1,0 +1,105 @@
+---
+
+  - name: Create log directory
+    file:
+      path: /var/log/security_monkey
+      state: directory
+      group: nginx
+      owner: "{{ whoami }}"
+      mode: 0755
+
+  - name: Create web directory
+    file:
+      path: /var/www
+      state: directory
+      owner: nginx
+
+  - name: Create security monkey source directory
+    file:
+      path: "{{ security_monkey_path }}"
+      state: directory
+      group: nginx
+      owner: "{{ whoami }}"
+
+  - name: Clone Git repository
+    git:
+      repo: 'https://github.com/Netflix/security_monkey.git'
+      dest: "{{ security_monkey_path }}"
+
+  - name: Change owner/group of security monkey src directory
+    file:
+      path: "{{ security_monkey_path }}"
+      group: nginx
+      owner: "{{ whoami }}"
+      recurse: yes
+
+  - name: Install dependencies in Virtualenv
+    pip:
+      name: "{{ item }}"
+      extra_args: --upgrade
+      virtualenv: "{{ security_monkey_path }}/venv"
+      virtualenv_python: python2.7
+    with_items:
+      - setuptools
+      - pip
+      - urllib3[secure]
+      - cloudaux\[gcp\]
+    become: no
+
+  - name: Install security monkey in Virtualenv
+    shell: "cd {{ security_monkey_path }} && {{ python_path_virtualenv }} {{ security_monkey_path }}/setup.py develop"
+    become: no
+
+  - name: Get and unarchive Web UI archive
+    unarchive:
+      src: "{{ security_monkey_webui_release }}"
+      dest: "{{ security_monkey_path }}/security_monkey/"
+      remote_src: yes
+
+  - name: Copy local configuration to server
+    template:
+      src: config.py.j2
+      dest: "{{ security_monkey_path }}/env-config/config.py"
+      mode: 0644
+    become: no
+
+  - name: Change static file directory group
+    file:
+      path: "{{ security_monkey_path }}"
+      group: nginx
+      recurse: yes
+
+  # - name: Populate DB
+  #   shell: "cd {{ security_monkey_path }} && {{ executable_path_virtualenv }}/monkey db upgrade"
+  #   become: no
+
+  # - name: Add friendly Amazon service accounts
+  #   shell: "cd {{ security_monkey_path }} && {{ executable_path_virtualenv }}/monkey amazon_accounts"
+  #   become: no
+
+  - name: Set group permissions to log file
+    file:
+      path: /var/log/security_monkey
+      state: directory
+      group: nginx
+
+  - name: Copy supervisor config file
+    template:
+      src: security_monkey.conf.j2
+      dest: /etc/supervisor/conf.d/security_monkey.conf
+      mode: 0644
+    notify: restart supervisor
+
+  - name: Copy SecMonkey config for Nginx
+    template:
+      src: security_monkey.nginx.conf.j2
+      dest: /etc/nginx/sites-available/security_monkey.conf
+      owner: nginx
+
+  - name: Add SecMonkey to Nginx config
+    file:
+      src: /etc/nginx/sites-available/security_monkey.conf
+      dest: /etc/nginx/sites-enabled/security_monkey.conf
+      state: link
+      owner: nginx
+    notify: restart nginx

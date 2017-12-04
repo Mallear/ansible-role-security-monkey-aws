@@ -1,0 +1,32 @@
+---
+
+galaxy_info:
+  author: Maxime Sibellas
+  description: Install minimal Nginx on Amazon Linux
+  company: Ekino
+  license: license (GPLv2, CC-BY, etc)
+  min_ansible_version: 1.7
+  platforms:
+  - name: AmazonLinux
+  categories:
+  - development
+  - web
+
+dependencies:
+  - role: ansible-role-nginx
+    become: yes
+  - role: ansible-role-supervisord-aws-linux
+    become: yes
+  - role: ansible-role-yum
+    yum_install_packages: [
+        python-pip,
+        python-devel,
+        python-psycopg2,
+        postgresql,
+        postgresql-contrib,
+        postgresql-devel,
+        git,
+        libffi-devel,
+        gcc,
+        python-virtualenv]
+    become: yes
